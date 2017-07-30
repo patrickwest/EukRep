@@ -1,0 +1,17 @@
+#!/usr/bin/env python3
+
+"""
+Script for separating eukaryotic and prokaryotic sequences from mixed metagenomic samples.
+patrickwest@berkeley.edu
+"""
+
+import argparse
+import os
+import sys
+
+import EukRep.EukRep as EukRep
+
+if __name__ == '__main__':
+
+  args = EukRep.Parse_Args(sys.argv[1:])
+  EukRep.main(args)
