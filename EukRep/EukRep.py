@@ -28,6 +28,7 @@ def main(args):
         prok_fh = None
     else:
         prok_fh = open(args.prokarya,'w')
+
     #Open model
     #model_fh = open(args.model,'rb')
     model = pickle.load(args.model)
@@ -49,16 +50,19 @@ def main(args):
         prok_fh.close()
 
 def check_args(args):
+    '''
+    Ensure user provided arguments won't cause issues
+    '''
 
     #Outfile
-    if os.path.isfile(args.o):
+    if os.path.isfile(args.o) and not args.ff:
         print('Outfile: %s already exists.' \
             % args.o, file=sys.stderr)
         exit()
 
     #Prokaryote Outfile
     if args.prokarya is not None:
-        if os.path.isfile(args.prokarya):
+        if os.path.isfile(args.prokarya) and not args.ff:
             print('Outfile: %s already exists.' \
                 % args.prokarya, file=sys.stderr)
             exit()
@@ -77,6 +81,8 @@ def check_args(args):
     if args.model is None:
         args.model = resource_stream(__name__, 'models/linsvm_160_%smer_1.0.pickle' % args.kmer_len)
         #args.model = os.path.join(sys.path[0], "models/linsvm_160_%smer_1.0.pickle" % args.kmer_len)
+    else:
+        args.model = open(args.model,'rb')
 
     #Minimum sequence length
     if args.min is None:
@@ -99,6 +105,10 @@ def check_args(args):
     return args
 
 def print_contigs_as_fa(fa_file_name, out_file, euk_ids, prokarya):
+    '''
+    Write predicted euk and predicted prok scaffolds in fa format to their respective output files
+    '''
+
     fa_fh = open(fa_file_name)
 
     for record in SeqIO.parse(fa_fh, "fasta"):
@@ -111,6 +121,10 @@ def print_contigs_as_fa(fa_file_name, out_file, euk_ids, prokarya):
             out_file.write(str(record.seq) + '\n')
 
 def print_seq_names(outfile, euk_ids, prok_ids, prokarya):
+    '''
+    Write predicted euk and predicted prok scaffolds names to their respective output files
+    '''
+
     for line in euk_ids:
         outfile.write(line + "\n")
 
@@ -120,6 +134,11 @@ def print_seq_names(outfile, euk_ids, prok_ids, prokarya):
 
 
 def Make_Predictions(fa_file_name, min_size, max_size, kmer_size, model, tie):
+    '''
+    Read in fasta file, chop into 5kb parts, calculate kmer frequencies,
+    and make predictions using provided trained machine learning model
+    '''
+
     #Classified Sequences
     euk_seqs = []
     prok_seqs = []
@@ -155,6 +174,11 @@ def Make_Predictions(fa_file_name, min_size, max_size, kmer_size, model, tie):
     return euk_seqs, prok_seqs
 
 def chunk_sequence(sequence, min_size, max_size):
+    '''
+    Cut sequences longer than 5kb into 5kb chunks and exclude trailing sequences
+    if shorter than user specified min_length
+    '''
+
     split_seqs = []
     while True:
         chunk = sequence.read(max_size)
@@ -166,11 +190,15 @@ def chunk_sequence(sequence, min_size, max_size):
     return split_seqs
 
 def calc_kmer_freqs(split_seqs, kmer_size):
+    '''
+    Use kpal to calculate kmer frequencies for split sequences
+    '''
+
     kmer_freqs = []
     for seq in split_seqs:
         temp_list = []
 
-        #for some reason this kmer counter function only works on iterable(str) type objects. kind of wierd
+        #for some reason this kmer counter function only works on iterable(str) type objects.
         temp_list.append(str(seq))
         ktable = Profile.from_sequences(temp_list, kmer_size, name=None)
 
@@ -187,6 +215,11 @@ def calc_kmer_freqs(split_seqs, kmer_size):
     return kmer_freqs
 
 def classify_by_majority_rule(predictions, seq_name, euk_seqs, prok_seqs, tie):
+    '''
+    Tally predictions for each 5kb chunk comprising a fasta sequence and determine
+    classification by majority rule of the 5kb chunks
+    '''
+
     #Classify sequence by majority rule
     prok_total = 0
     euk_total = 0
@@ -241,6 +274,9 @@ def Parse_Args(args):
 
     # options
     parser.add_argument(\
+        '-ff',\
+        action = 'store_true', help = 'Force overwrite of existing output files')
+    parser.add_argument(\
         '--min',\
         help = 'Minimum sequence length cutoff for sequences to be included in prediction. Default is 3kb')
     parser.add_argument(\
@@ -248,7 +284,7 @@ def Parse_Args(args):
         help = 'Path to an alternate trained linear SVM model. Default is lin_svm_160_3.0.pickle')
     parser.add_argument(\
         '-k', '--kmer_len',\
-        help = 'If using an alternate trained linear SVM model that was trained with kmers other than length 5, specify the kmer length')
+        help = 'Kmer length to use for making predictions. Lengths between 3-7bp are available by default. If using a custom trained model, specify kmer length here.')
     parser.add_argument(\
         '--prokarya',\
         help = 'Name of file to output predicted prokaryotic sequences to. Default is to not output prokaryotic sequences.')
