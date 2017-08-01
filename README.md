@@ -1,12 +1,10 @@
-# EukRep
+# EukRep #
 Classification of Eukaryotic and Prokaryotic sequences from metagenomic datasets
-=======================
 # Installation #
 * Easy install with pip
 ```
 $ pip install EukRep
 ```
-----
 # Usage #
 * Identify sequences predicted to be of Eukaryotic origin
 ```
