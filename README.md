@@ -1,6 +1,7 @@
 # EukRep #
 Classification of Eukaryotic and Prokaryotic sequences from metagenomic datasets
 # Installation #
+* Requires Python3
 * Easy install with pip
 ```
 $ pip install EukRep
