@@ -7,6 +7,7 @@ import sys
 import numpy
 import pickle
 import argparse
+import warnings
 from argparse import RawTextHelpFormatter
 from kpal.klib import Profile
 from numpy import array
@@ -31,10 +32,11 @@ def main(args):
 
     #Open model
     #model_fh = open(args.model,'rb')
-    model = pickle.load(args.model)
+    with warnings.catch_warnings():
+        warnings.simplefilter("ignore", category=UserWarning)
+        model = pickle.load(args.model)
 
     #Perform predictions
-
     euk_scafs, prok_scafs = Make_Predictions(args.i, args.min, 5000, args.kmer_len, model, args.tie)
 
     #Write output
@@ -118,7 +120,7 @@ def print_contigs_as_fa(fa_file_name, out_file, euk_ids, prokarya):
 
         elif prokarya is not None:
             prokarya.write('>' + record.id + '\n')
-            out_file.write(str(record.seq) + '\n')
+            prokarya.write(str(record.seq) + '\n')
 
 def print_seq_names(outfile, euk_ids, prok_ids, prokarya):
     '''

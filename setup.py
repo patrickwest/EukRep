@@ -9,7 +9,7 @@ with open(path.join(here, 'README.md'), encoding='utf-8') as f:
 
 setup(
     name='EukRep',
-    version='0.6.1',
+    version='0.6.2',
     description='Classification of Eukaryotic and Prokaryotic sequences from metagenomic datasets',
     url='https://github.com/patrickwest/EukRep',
     author='Patrick West',
