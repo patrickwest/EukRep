@@ -12,7 +12,7 @@ setup(
     version='0.6.2',
     description='Classification of Eukaryotic and Prokaryotic sequences from metagenomic datasets',
     url='https://github.com/patrickwest/EukRep',
-    author='Patrick West',
+    author='Patrick T West',
     author_email='patrickwest@berkeley.edu',
     license='MIT',
     package_data={'EukRep': ['models/*.pickle']},
