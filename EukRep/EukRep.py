@@ -69,10 +69,6 @@ def check_args(args):
                 % args.prokarya, file=sys.stderr)
             exit()
 
-    #prok wieght
-    if args.prok_weight is none:
-        args.prok_weight = 1
-
     #Kmer length
     if args.kmer_len is None:
         args.kmer_len = 5
@@ -282,9 +278,6 @@ def Parse_Args(args):
     parser.add_argument(\
         '-ff',\
         action = 'store_true', help = 'Force overwrite of existing output files')
-    parser.add_argument(\
-        '--prok_weight',\
-        help = 'adjust class weight for prokaryotes. increasing will decrease false positive rate but decrease true positive rate. Suggested values: lenient (default): moderate: strict:')
     parser.add_argument(\
         '--min',\
         help = 'Minimum sequence length cutoff for sequences to be included in prediction. Default is 3kb')
