@@ -69,6 +69,10 @@ def check_args(args):
                 % args.prokarya, file=sys.stderr)
             exit()
 
+    #prok wieght
+    if args.prok_weight is none:
+        args.prok_weight = 1
+
     #Kmer length
     if args.kmer_len is None:
         args.kmer_len = 5
@@ -81,7 +85,7 @@ def check_args(args):
 
     #Model
     if args.model is None:
-        args.model = resource_stream(__name__, 'models/linsvm_160_%smer_1.0.pickle' % args.kmer_len)
+        args.model = resource_stream(__name__, 'models/linsvm_160_%smer_1.1.pickle' % args.kmer_len)
         #args.model = os.path.join(sys.path[0], "models/linsvm_160_%smer_1.0.pickle" % args.kmer_len)
     else:
         args.model = open(args.model,'rb')
@@ -115,11 +119,11 @@ def print_contigs_as_fa(fa_file_name, out_file, euk_ids, prokarya):
 
     for record in SeqIO.parse(fa_fh, "fasta"):
         if record.id in euk_ids:
-            out_file.write('>' + record.id + '\n')
+            out_file.write('>' + record.description + '\n')
             out_file.write(str(record.seq) + '\n')
 
         elif prokarya is not None:
-            prokarya.write('>' + record.id + '\n')
+            prokarya.write('>' + record.description + '\n')
             prokarya.write(str(record.seq) + '\n')
 
 def print_seq_names(outfile, euk_ids, prok_ids, prokarya):
@@ -278,6 +282,9 @@ def Parse_Args(args):
     parser.add_argument(\
         '-ff',\
         action = 'store_true', help = 'Force overwrite of existing output files')
+    parser.add_argument(\
+        '--prok_weight',\
+        help = 'adjust class weight for prokaryotes. increasing will decrease false positive rate but decrease true positive rate. Suggested values: lenient (default): moderate: strict:')
     parser.add_argument(\
         '--min',\
         help = 'Minimum sequence length cutoff for sequences to be included in prediction. Default is 3kb')
