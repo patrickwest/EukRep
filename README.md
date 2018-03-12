@@ -18,3 +18,7 @@ $ EukRep -i <Sequences in Fasta format> -o <Eukaryote sequence output file> --pr
 
 For obtaining high quality gene predictions and binning identified eukaryotic contigs as described in "Genome-reconstruction for eukaryotes from complex natural microbial communities" (West et al. in review), see methods section https://doi.org/10.1101/171355
 
+-or-
+
+See a provided example workflow (work in progess)
+https://github.com/patrickwest/EukRep_Pipeline
