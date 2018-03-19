@@ -81,7 +81,15 @@ def check_args(args):
 
     #Model
     if args.model is None:
-        args.model = resource_stream(__name__, 'models/linsvm_160_%smer_1.1.pickle' % args.kmer_len)
+        #Mode
+        if args.mode is None:
+            args.model = resource_stream(__name__, 'models/linsvm_160_%smer_1.1.balanced.pickle' % args.kmer_len)
+        elif args.mode is 'lenient':
+            args.model = resource_stream(__name__, 'models/linsvm_160_%smer_1.1.pickle' % args.kmer_len)
+        elif args.mode is 'strict':
+            args.model = resource_stream(__name__, 'models/linsvm_160_%smer_1.1.strict.pickle' % args.kmer_len)
+        elif args.mode is 'balanced':
+            args.model = resource_stream(__name__, 'models/linsvm_160_%smer_1.1.balanced.pickle' % args.kmer_len)
         #args.model = os.path.join(sys.path[0], "models/linsvm_160_%smer_1.0.pickle" % args.kmer_len)
     else:
         args.model = open(args.model,'rb')
@@ -293,6 +301,10 @@ def Parse_Args(args):
     parser.add_argument(\
         '--seq_names',\
         action = 'store_true', help = 'Only output fasta headers of identified sequences. Default is full fasta entry')
+    parser.add_argument('--mode',\
+        choices=['strict', 'balanced', 'lenient'],\
+        help = 'Not compatable with --model.\n\
+        How stringent the algorithm is in identifying eukaryotic scaffolds. Strict has a lower false positive rate and true positive rate; vice verso for leneient. Default is balanced.')
     #parser.add_argument(\
         #'--pre_merged', action = 'store_true',\
         #help = 'Output predictions for each sub-chunk of input sequences. Default is predictions for full merged sequences')
