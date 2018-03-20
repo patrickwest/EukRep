@@ -26,6 +26,15 @@ EukRep is intended to be used as one part of a larger pipeline. For obtaining hi
 See a provided example workflow (work in progess)
 https://github.com/patrickwest/EukRep_Pipeline
 
+# Adjusting Stringency #
+
+The stringency of identifying eukaryotic contigs can be adjusted with -m. The false positive rate (FPR) and false negative rate (FNR) for the strict, balanced, and lenient modes are shown below. Data was obtained by running EukRep on 20kb and 5kb fragmented scaffolds from genomes from mock novel phyla.
+
+20kb
+![alt text](https://github.com/patrickwest/EukRep/tree/master/images/20kb_fpr.pdf "20kb")
+5kb
+![alt text](https://github.com/patrickwest/EukRep/tree/master/images/5kb_fpr.pdf "5kb")
+
 # Important Caveat #
 
-EukRep is designed to miss as little eukaryotic sequence as possible and makes predictions on every sequence, even if it has low confidence. Because of this, it has a false positive rate around 2% of seqeunces tested and you should not expect the entire output to be eukaryotic sequence. This also means you will recieve output even if there is no eukaryote present.
+In our experience, most metagenomes do not have a eukaryotic genome present; however, EukRep has a false positive rate and you will still receive output in these cases. 
