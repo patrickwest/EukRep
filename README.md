@@ -33,10 +33,12 @@ The stringency of identifying eukaryotic contigs can be adjusted with -m. The fa
 20kb
 
 ![20kb](https://github.com/patrickwest/EukRep/blob/master/images/20kb_fpr.png)
+<img src="https://github.com/patrickwest/EukRep/blob/master/images/20kb_fpr.png" width="48">
 
 5kb
 
 ![5kb](https://github.com/patrickwest/EukRep/blob/master/images/5kb_fpr.png)
+<img src="https://github.com/patrickwest/EukRep/blob/master/images/5kb_fpr.png" width="48">
 
 # Important Caveat #
 
