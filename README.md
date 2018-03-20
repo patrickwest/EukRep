@@ -30,9 +30,13 @@ https://github.com/patrickwest/EukRep_Pipeline
 
 The stringency of identifying eukaryotic contigs can be adjusted with -m. The false positive rate (FPR) and false negative rate (FNR) for the strict, balanced, and lenient modes are shown below. Data was obtained by running EukRep on 20kb and 5kb fragmented scaffolds from genomes from mock novel phyla.
 
-![20kb](https://github.com/patrickwest/EukRep/blob/master/images/20kb_fpr.png "20kb")
+20kb
 
-![5kb](https://github.com/patrickwest/EukRep/blob/master/images/5kb_fpr.png "5kb")
+![20kb](https://github.com/patrickwest/EukRep/blob/master/images/20kb_fpr.png "20kb" | width = 100)
+
+5kb
+
+![5kb](https://github.com/patrickwest/EukRep/blob/master/images/5kb_fpr.png "5kb" | width = 100)
 
 # Important Caveat #
 
