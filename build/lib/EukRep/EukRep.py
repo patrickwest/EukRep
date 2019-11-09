@@ -305,9 +305,6 @@ def Parse_Args(args):
         choices=['strict', 'balanced', 'lenient'],\
         help = 'Not compatable with --model.\n\
         How stringent the algorithm is in identifying eukaryotic scaffolds. Strict has a lower false positive rate and true positive rate; vice verso for leneient. Default is balanced.')
-    parser.add_argument(\
-        '--version',\
-        action='version', version='EukRep 0.6.6')
     #parser.add_argument(\
         #'--pre_merged', action = 'store_true',\
         #help = 'Output predictions for each sub-chunk of input sequences. Default is predictions for full merged sequences')
