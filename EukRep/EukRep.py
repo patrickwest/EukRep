@@ -16,19 +16,14 @@ from Bio import SeqIO
 from io import StringIO
 from random import randint
 from pkg_resources import resource_stream
+import gzip
+import io
+
 
 def main(args):
 
     #check arguments are valid
     args = check_args(args)
-
-    #Open files
-    outfile = open(args.o,'w')
-    #open prokarya output file
-    if args.prokarya is None:
-        prok_fh = None
-    else:
-        prok_fh = open(args.prokarya,'w')
 
     #Open model
     #model_fh = open(args.model,'rb')
@@ -36,20 +31,49 @@ def main(args):
         warnings.simplefilter("ignore", category=UserWarning)
         model = pickle.load(args.model)
 
-    #Perform predictions
-    euk_scafs, prok_scafs = Make_Predictions(args.i, args.min, 5000, args.kmer_len, model, args.tie)
+    #Open files
+    outfile = open(args.o, "w")
 
-    #Write output
-    if args.seq_names == True:
-        print_seq_names(outfile, euk_scafs, prok_scafs, prok_fh)
+    #open prokarya output file
+    if args.prokarya is None:
+        prok_fh = None
     else:
-        print_contigs_as_fa(args.i, outfile, euk_scafs, prok_fh)
+        prok_fh = open(args.prokarya,'w')
+ 
+    # Open input fasta file (non-interleaved)
+    if args.i.endswith(".gz"):
+        input_file = gzip.open(args.i, 'rb')
+        fin = io.TextIOWrapper(input_file, encoding='utf-8')
+    else:
+        fin = open(args.i, "r")
+
+    #Perform predictions
+    sorting = False
+    for line in fin:
+            line = line.rstrip()
+            if line.startswith(">"):
+                ida = line
+            else:
+                secuen = line
+                sorting = True
+            if sorting == True:
+                euk_scafs, prok_scafs = Make_Predictions(ida, secuen, args.min, 5000, args.kmer_len, model, args.tie)
+    #Write output
+                if args.seq_names == True:
+                    print_seq_names(outfile, euk_scafs, prok_scafs, prok_fh)
+                else:
+                    print_contigs_as_fa(ida, secuen, outfile, euk_scafs, prok_fh)
+                sorting = False
 
     #cleanup
     args.model.close()
     outfile.close()
     if prok_fh is not None:
         prok_fh.close()
+    if args.i.endswith(".gz"):
+        input_file.close()
+    fin.close()
+        
 
 def check_args(args):
     '''
@@ -114,21 +138,16 @@ def check_args(args):
 
     return args
 
-def print_contigs_as_fa(fa_file_name, out_file, euk_ids, prokarya):
+def print_contigs_as_fa(id,s, out_file, euk_ids, prokarya):
     '''
     Write predicted euk and predicted prok scaffolds in fa format to their respective output files
     '''
 
-    fa_fh = open(fa_file_name)
+    if id in euk_ids:
+        out_file.write(id + '\n' + s + '\n')
 
-    for record in SeqIO.parse(fa_fh, "fasta"):
-        if record.id in euk_ids:
-            out_file.write('>' + record.description + '\n')
-            out_file.write(str(record.seq) + '\n')
-
-        elif prokarya is not None:
-            prokarya.write('>' + record.description + '\n')
-            prokarya.write(str(record.seq) + '\n')
+    elif prokarya is not None:
+        prokarya.write(id + '\n' + s + '\n')
 
 def print_seq_names(outfile, euk_ids, prok_ids, prokarya):
     '''
@@ -143,43 +162,31 @@ def print_seq_names(outfile, euk_ids, prok_ids, prokarya):
             prokarya.write(line + "\n")
 
 
-def Make_Predictions(fa_file_name, min_size, max_size, kmer_size, model, tie):
+def Make_Predictions(seq_name, seq, min_size, max_size, kmer_size, model, tie):
     '''
-    Read in fasta file, chop into 5kb parts, calculate kmer frequencies,
+    Read in sequences, chop into 5kb parts, calculate kmer frequencies,
     and make predictions using provided trained machine learning model
     '''
 
     #Classified Sequences
     euk_seqs = []
     prok_seqs = []
-
-    #open file
-    fh = open(fa_file_name)
-
-    #Iterate through fasta
-    for record in SeqIO.parse(fh, "fasta"):
-        s = StringIO(str(record.seq))
-        split_seqs = []
-        kmer_freqs = []
-        seq_name = record.id
-
-        #split sequence into 5kb max_size chunks
-        split_seqs = chunk_sequence(s, min_size, max_size)
-
-        #Calculate kmer frequences for each chunk
-        kmer_freqs = calc_kmer_freqs(split_seqs, kmer_size)
-
-        #Make prediction on each chunk
-        #scikit learn requires .reshape(1,-1) for 1d arrays so if only one seq exists for a contig transform it
-        if len(kmer_freqs) == 1:
-            predictions = model.predict(numpy.asarray(kmer_freqs).reshape(1,-1))
-        elif len(kmer_freqs) >= 1:
-            predictions = model.predict(kmer_freqs)
-
-        if len(kmer_freqs) >= 1:
-            euk_seqs, prok_seqs = classify_by_majority_rule(predictions, seq_name, euk_seqs, prok_seqs, tie)
-
-    fh.close()
+    split_seqs = []
+    kmer_freqs = []
+    s = StringIO(seq)
+#    seq_name = id
+    #split sequence into 5kb max_size chunks
+    split_seqs = chunk_sequence(s, min_size, max_size)
+    #Calculate kmer frequences for each chunk
+    kmer_freqs = calc_kmer_freqs(split_seqs, kmer_size)
+    #Make prediction on each chunk
+    #scikit learn requires .reshape(1,-1) for 1d arrays so if only one seq exists for a contig transform it
+    if len(kmer_freqs) == 1:
+        predictions = model.predict(numpy.asarray(kmer_freqs).reshape(1,-1))
+    elif len(kmer_freqs) >= 1:
+        predictions = model.predict(kmer_freqs)
+    if len(kmer_freqs) >= 1:
+        euk_seqs, prok_seqs = classify_by_majority_rule(predictions, seq_name, euk_seqs, prok_seqs, tie)
 
     return euk_seqs, prok_seqs
 
@@ -326,3 +333,4 @@ if __name__ == '__main__':
 
     args = Parse_Args(sys.argv[1:])
     main(args)
+
