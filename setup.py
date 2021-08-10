@@ -20,7 +20,7 @@ setup(
     scripts=['bin/EukRep'],
     install_requires=[
           'numpy',
-          'scikit-learn',
+          'scikit-learn == 0.19.2',
           'kpal',
           'biopython'
     ],
