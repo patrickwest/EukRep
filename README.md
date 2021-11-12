@@ -3,7 +3,11 @@ Classification of Eukaryotic and Prokaryotic sequences from metagenomic datasets
 
 # Installation #
 * Requires Python3
-* Easy install with pip
+* Install with conda (recommended)
+```
+$ conda create -y -n eukrep-env -c bioconda scikit-learn==0.19.2 eukrep
+```
+* Install with pip (requires scikit-learn v 0.19.2)
 ```
 $ pip install EukRep
 ```
